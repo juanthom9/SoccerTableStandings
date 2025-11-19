@@ -1,7 +1,7 @@
-/*This page.tsx is for the Premier League standings section
+/*This page.tsx is for the Serie A standings section
 
 Note: SOCCER_DATA_API_KEY is a constant which contains the API token. 
-Its hidden for security reasons. The API used is: https://www.football-data.org/. */ 
+Its hidden for security reasons. The API used is: https://www.football-data.org/.*/ 
 
 import Image from "next/image";
 import { Della_Respira } from "next/font/google";
@@ -12,32 +12,32 @@ const dellaRespira = Della_Respira({
   weight: "400",
 })
 
+// Get the  serieA standings
+async function getserieaStandings(){
 
-// Get the standings
-async function getPLStandings(){
 
-  const res = await fetch(
-    "https://api.football-data.org/v4/competitions/PL/standings",
+    const res = await fetch(
+    "https://api.football-data.org/v4/competitions/SA/standings",
     {
-      headers: {
+        headers: {
         "X-Auth-Token": process.env.SOCCER_DATA_API_KEY!,
-      },
-      next: { revalidate: 60 }, // refresh every 60 seconds
+        },
+        next: { revalidate: 60 }, // refresh every 60 seconds
     }
-  );
+    );
 
-  if (!res.ok) {
+    if (!res.ok) {
     // Log the error body so you can see what went wrong
     const errorText = await res.text();
     console.error("Football-Data error:", res.status, errorText);
     throw new Error("Failed to fetch standings");
-  }
+    }
 
-  const data = await res.json();
+    const data = await res.json();
 
-  const table = data.standings[0].table as any[];
+    const table = data.standings[0].table as any[];
 
-  return table.map((row) => {
+    return table.map((row) => {
     const played = row.playedGames as number;
     const wins = row.won as number;
     const draws = row.draw as number;
@@ -45,94 +45,95 @@ async function getPLStandings(){
     const points = row.points as number;
 
     const winPct =
-      played > 0 ? ((wins / played) * 100).toFixed(1) : "0.0";
+        played > 0 ? ((wins / played) * 100).toFixed(1) : "0.0";
 
     return {
-      position: row.position,
-      team: row.team.name,
-      crest: row.team.crest,
-      played,
-      wins,
-      draws,
-      losses,
-      points,
-      winPct,
+        position: row.position,
+        team: row.team.name,
+        crest: row.team.crest,
+        played,
+        wins,
+        draws,
+        losses,
+        points,
+        winPct,
     };
-  });
+    });
 }
 
 // Get the year of the season
 export async function getSeasonYear() {
   
-  const res = await fetch(
-    "https://api.football-data.org/v4/competitions/PL/standings",
+    const res = await fetch(
+    "https://api.football-data.org/v4/competitions/SA/standings",
     {
-      headers: {
+        headers: {
         "X-Auth-Token": process.env.SOCCER_DATA_API_KEY!,
-      },
-      next: { revalidate: 60 }, // optional caching
+        },
+        next: { revalidate: 60 }, // optional caching
     }
-  );
+    );
 
-  if (!res.ok) {
+    if (!res.ok) {
     // Log the error body so you can see what went wrong
     const errorText = await res.text();
     console.error("Football-Data error:", res.status, errorText);
     throw new Error("Failed to fetch standings");
-  }
+    }
 
-  const data = await res.json();
+    const data = await res.json();
 
-  const season = data.filters.season;
+    const season = data.filters.season;
 
-  return season;
+    return season;
 
 }
 
-export default async function Home() {
-  const plStandings = await getPLStandings();
 
-  const season = await getSeasonYear();
-  
-  return (
+export default async function SerieA() {
+    const serieaStandings = await getserieaStandings();
+        
+    const season = await getSeasonYear();
+    
+    return (
     <main className={`${dellaRespira.className} flex justify-center pt-10 bg-gray-900 min-h-screen`}>
-      
-      <div className="w-full max-w-5xl bg-gray-700 shadow-lg rounded-xl p-6 mb-10">
+        
+        <div className="w-full max-w-5xl bg-gray-700 shadow-lg rounded-xl p-6 mb-10">
         <h2 className="text-2xl font-bold text-center text-yellow-200 mb-4">
-          Premier League Standings {season}
+            Serie A Standings {season}
         </h2>
 
         <div className="grid grid-cols-[0.5fr_0.7fr_2.5fr_1fr_1fr_1fr_1fr_1fr_1fr] 
         bg-black text-pink-400 font-bold text-center py-3 rounded-t-xl 
         border-b border-gray-700 divide-x divide-gray-700">
 
-          <div>Pos</div>
-          <div>Crest</div>
-          <div>Team</div>
-          <div>PL</div>
-          <div>W</div>
-          <div>D</div>
-          <div>L</div>
-          <div>Win Rate</div>
-          <div>Pts</div>
+            <div>Pos</div>
+            <div>Crest</div>
+            <div>Team</div>
+            <div>PL</div>
+            <div>W</div>
+            <div>D</div>
+            <div>L</div>
+            <div>Win Rate</div>
+            <div>Pts</div>
         </div>
         
 
-        {plStandings.map((team) => (
-          <div
+        {serieaStandings.map((team) => (
+            <div
             key={team.position}
             className="grid grid-cols-[0.5fr_0.7fr_2.5fr_1fr_1fr_1fr_1fr_1fr_1fr]
-                      text-gray-200 text-center py-2 border-b border-gray-700 
-                      divide-x divide-gray-800"
-          >
+                        text-gray-200 text-center py-2 border-b border-gray-700 
+                        divide-x divide-gray-800"
+            >
             <div>{team.position}</div>
 
             <div className="flex justify-center items-center">
-              <img 
+                <img 
                 src={team.crest} 
                 alt={team.team} 
                 className="w-6 h-6 object-contain"
-              />
+                />
             </div>
 
             <div>{team.team}</div>
@@ -142,11 +143,11 @@ export default async function Home() {
             <div>{team.losses}</div>
             <div>{team.winPct}%</div>
             <div className="font-bold text-yellow-400">{team.points}</div>
-          </div>
+            </div>
         ))}
 
 
-      </div>
+        </div>
     </main>
-  );
+    );
 }

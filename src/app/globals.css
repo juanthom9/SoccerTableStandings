@@ -47,5 +47,12 @@ Good to keep it around just in case.*/
   animation: fadeDown 0.6s ease-out forwards;
 }
 
+/* To keep the colors in place no matter dark or light mode
+on user's device */
+
+html {
+  color-scheme: light;
+}
+
 
 
